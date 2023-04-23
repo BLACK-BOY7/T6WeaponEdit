@@ -17,6 +17,6 @@ how to use it, you have to extract the gsc file and the program in your plutoniu
 + wp_list list: ```this command will show you on the console a list with the names of the weapons that will be in the current map.```
 
 **commands in game:**
-**.buy:** ```this command is for you to buy your weapon. to buy it you just have to type in game chat >>> ".buy m1911" and your weapon will be bought if you meet what is needed to buy it.```
+- **.buy:** ```this command is for you to buy your weapon. to buy it you just have to type in game chat >>> ".buy m1911" and your weapon will be bought if you meet what is needed to buy it.```
 
-**.list:** ```will show you the list of weapons and their prices.```
+* **.list:** ```will show you the list of weapons and their prices.```
