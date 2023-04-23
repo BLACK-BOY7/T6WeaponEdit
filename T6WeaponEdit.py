@@ -22,7 +22,11 @@ def EnterPress(event):
                 event.widget.bell()
                 return "break"
 
-        if event.widget.index("insert") <= 0 and event.keysym == "0":
+        if event.widget.get().startswith("0"):
+            event.widget.delete(0, 1)
+            return
+        
+        if event.widget.index("insert") < 1 and event.keysym == "0":
             event.widget.bell()
             return "break"
 
@@ -56,13 +60,13 @@ def common_data(self):
         "name_string": self.WeaponName.get(),
         "name_id": weapon_list_json["all"][self.WeaponClass.get()][self.WeaponName.get()],
         "alias": self.Weapon["alias"].get().strip(),
-        "cost": self.Weapon["cost"].get().strip(),
-        "cost_up": self.Weapon["cost_up"].get().strip(),
-        "cost_re_up": self.Weapon["cost_re_up"].get().strip(),
-        "limit": self.Weapon["limit"].get().strip(),
-        "round": self.Weapon["round"].get().strip(),
-        "kills": self.Weapon["kills"].get().strip(),
-        "hs": self.Weapon["hs"].get().strip()
+        "cost": self.Weapon["cost"].get().strip().lstrip('0'),
+        "cost_up": self.Weapon["cost_up"].get().strip().lstrip('0'),
+        "cost_re_up": self.Weapon["cost_re_up"].get().strip().lstrip('0'),
+        "limit": self.Weapon["limit"].get().strip().lstrip('0'),
+        "round": self.Weapon["round"].get().strip().lstrip('0'),
+        "kills": self.Weapon["kills"].get().strip().lstrip('0'),
+        "hs": self.Weapon["hs"].get().strip().lstrip('0')
     }
 
 
@@ -86,7 +90,7 @@ class App(customtkinter.CTk):
 
 
     def main_window(self):
-        self.title("T6WeaponS")
+        self.title("T6WeaponEdit")
         self.iconbitmap(db.resource_path("file\\T6WeapEd.ico"))
         x_screen = self.winfo_screenmmheight()
         y_screen = self.winfo_screenmmwidth()
