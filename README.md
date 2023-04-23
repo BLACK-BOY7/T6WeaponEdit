@@ -9,12 +9,12 @@ how to use it, you have to extract the gsc file and the program in your plutoniu
 
 ** obs:**this gsc script, will only work if you have the [t6-gsc-utils plugin](https://github.com/fedddddd/t6-gsc-utils).
 
-**console commands:** \n
-wp_list on: ```is for the in case you have not exported the file but have already started your server, with this command the script will load the file in real time and will be working.```
+**console commands:**
+                   -wp_list on: ```is for the in case you have not exported the file but have already started your server, with this command the script will load the file in real time and will be working.```
 
-wp_list up: ```you can use this if you have deleted some weapon or modified, and exported the json, this command serves to update the list of weapons with their properties in real time in the game if your server is started.```
+                   *wp_list up: ```you can use this if you have deleted some weapon or modified, and exported the json, this command serves to update the list of weapons with their properties in real time in the game if your server is started.```
 
-wp_list list: ```this command will show you on the console a list with the names of the weapons that will be in the current map.```
+                   +wp_list list: ```this command will show you on the console a list with the names of the weapons that will be in the current map.```
 
 **commands in game:** \n
 **.buy:** ```this command is for you to buy your weapon. to buy it you just have to type in game chat >>> ".buy m1911" and your weapon will be bought if you meet what is needed to buy it.```
