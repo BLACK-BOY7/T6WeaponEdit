@@ -1,0 +1,192 @@
+{
+    "all":{
+        "Snipers":{
+            "DSR50":"dsr50_zm",
+            "BARRETT":"barretm82_zm",
+            "SVU":"svu_zm",
+            "BALLISTA":"ballista_zm"
+        },
+
+        "Smgs":{
+            "CHICOM":"qcw05_zm",
+            "THOMPSON":"thompson_zm",
+            "AK74u":"ak74u_zm",
+            "MP5k":"mp5k_zm",
+            "PDW-57":"pdw57_zm",
+            "MP-40":"mp40_zm",
+            "SKORPION":"evoskorpion_zm",
+            "UZI":"uzi_zm"
+        },
+        
+        "Ars":{
+            "FN FAL":"fnfal_zm",
+            "M14":"m14_zm",
+            "SMR":"saritch_zm",
+            "M16":"m16_zm",
+            "TAR-21":"tar21_zm",
+            "TYPE-25":"type95_zm",
+            "GALIL":"galil_zm",
+            "AN-94":"an94_zm",
+            "AK-47":"ak47_zm",
+            "M8A1":"xm8_zm",
+            "MP-44":"mp44_zm",
+            "SCAR-H":"scar_zm",
+            "M27":"hk416_zm"
+        },
+
+        "Shotguns":{
+            "R870-MCS":"870mcs_zm",
+            "OLYMPIA":"rottweil72_zm",
+            "S-12":"saiga12_zm",
+            "M1216":"srm1216_zm",
+            "KSG":"ksg_zm"
+        },
+
+        "Lmgs":{
+            "LSAT":"lsat_zm",
+            "RPD":"rpd_zm",
+            "MG-08":"mg08_zm",
+            "HAMR":"hamr_zm",
+            "DEATH MACHINE":"minigun_alcatraz_zm"
+        },
+
+        "Pistols":{
+            "M1911":"m1911_zm",
+            "MAUSER":"c96_zm",
+            "PYHTON":"python_zm",
+            "REMINGTON NEW MODEL ARMY":"rnma_zm",
+            "EXECUTIONER":"judge_zm",
+            "KAP-40":"kard_zm",
+            "FIVE-SEVEN":"fiveseven_zm",
+            "FIVE-SEVEN DUAL-WIELD":"fivesevendw_zm",
+            "B23R":"beretta93r_zm"
+        },
+        
+        "Launchers":{
+            "RPG":"usrpg_zm",
+            "WAR MACHINE":"m32_zm"
+        },
+
+        "Specials":{
+            "BALLISTIC KNIFE":"knife_ballistic_zm",
+            "BALLISTIC BOWIE":"knife_ballistic_bowie_zm",
+            "BALLISTIC KNIFE NO MELEE":"knife_ballistic_no_melee_zm"
+        },
+
+        "Wonder Weapons":{
+            "RAY GUN":"ray_gun_zm",
+            "RAY GUN MARK-II":"raygun_mark2_zm",
+            "PARALYZER":"slowgun_zm",
+            "SLIQUIFIER":"slipgun_zm",
+            "BLUNDERGAT":"blundergat_zm",
+            "ACIDGAT":"blundersplat_zm",
+            "FIRE STAFF":"staff_fire_zm",
+            "ICE STAFF":"staff_water_zm",
+            "WIND STAFF":"staff_air_zm",
+            "LIGHTNING STAFF":"staff_lightning_zm"
+        },
+
+        "Equipment":{
+            "MONKEY BOMBS":"cymbal_monkey_zm",
+            "SMOKES":"willy_pete_zm",
+            "G-STRIKES":"beacon_zm",
+            "SEMTEX":"sticky_grenade_zm",
+            "FRAGS":"frag_grenade_zm",
+            "CLAYMORES":"claymore_zm",
+            "EMPs":"emp_grenade_zm",
+            "TIME BOMB":"time_bomb_zm",
+            "TOMAHAWK":"bouncing_tomahawk_zm"
+        },
+        
+        "Melee":{
+            "BOWIE KNIFE":"bowie_knife_zm",
+            "GALVA KNUCKLES":"tazer_knuckles_zm",
+            "ONE INCH PUNCH":"one_inch_punch_zm",
+            "SPOON":"spoon_zm_alcatraz",
+            "SPORK":"spork_zm_alcatraz",
+            "DEFAULT KNIFE":"knife_zm"
+        }
+    },
+    "support an attachment":{
+        "DSR50":"dsr50_zm",
+        "PDW-57":"pdw57_zm",
+        "S-12":"saiga12_zm",
+        "R870-MCS":"870mcs_zm",
+        "M1216":"srm1216_zm",
+        "KAP-40":"kard_zm",
+        "FIVE-SEVEN":"fiveseven_zm",
+        "EXECUTIONER":"judge_zm",
+        "B23R":"beretta93r_zm",
+        "LSAT":"lsat_zm",
+        "HAMR":"hamr_zm",
+        "TAR-21":"tar21_zm",
+        "SMR":"saritch_zm",
+        "AN-94":"an94_zm",
+        "CHICOM":"qcw05_zm",
+        "TYPE-25":"type95_zm",
+        "M8A1":"xm8_zm",
+        "M27":"hk416_zm",
+        "SCAR-H":"scar_zm",
+        "SKORPION":"evoskorpion_zm",
+        "BALLISTA":"ballista_zm"
+    },
+    "support an upgrade":
+    {
+        "THOMPSON":"thompson_zm",
+        "PARALYZER":"slowgun_zm",
+        "REMINGTON NEW MODEL ARMY":"rnma_zm",
+        "SVU":"svu_zm",
+        "AN-94":"an94_zm",
+        "BALLISTIC KNIFE NO MELEE":"knife_ballistic_no_melee_zm",
+        "BLUNDERGAT":"blundergat_zm",
+        "ACIDGAT":"blundersplat_zm",
+        "UZI":"uzi_zm",
+        "DEATH MACHINE":"minigun_alcatraz_zm",
+        "TOMAHAWK":"bouncing_tomahawk_zm",
+        "AK-47":"ak47_zm",
+        "LSAT":"lsat_zm",
+        "M27":"hk416_zm",
+        "BALLISTA":"ballista_zm",
+        "SKORPION":"evoskorpion_zm",
+        "PDW-57":"pdw57_zm",
+        "MP-40":"mp40_zm",
+        "KSG":"ksg_zm",
+        "MAUSER":"c96_zm",
+        "MG-08":"mg08_zm",
+        "SCAR-H":"scar_zm",
+        "MP-44":"mp44_zm",
+        "RAY GUN MARK-II":"raygun_mark2_zm",
+        "RAY GUN":"ray_gun_zm",
+        "BALLISTIC KNIFE":"knife_ballistic_zm",
+        "BALLISTIC BOWIE":"knife_ballistic_bowie_zm",
+        "DSR50":"dsr50_zm",
+        "BARRETT":"barretm82_zm",
+        "MP5k":"mp5k_zm",
+        "CHICOM":"qcw05_zm",
+        "AK74u":"ak74u_zm",
+        "S-12":"saiga12_zm",
+        "R870-MCS":"870mcs_zm",
+        "OLYMPIA":"rottweil72_zm",
+        "M1216":"srm1216_zm",
+        "PYHTON":"python_zm",
+        "M1911":"m1911_zm",
+        "KAP-40":"kard_zm",
+        "FIVE-SEVEN DUAL-WIELD":"fivesevendw_zm",
+        "FIVE-SEVEN":"fiveseven_zm",
+        "EXECUTIONER":"judge_zm",
+        "B23R":"beretta93r_zm",
+        "RPD":"rpd_zm",
+        "HAMR":"hamr_zm",
+        "WAR MACHINE":"m32_zm",
+        "RPG":"usrpg_zm",
+        "TYPE-25":"type95_zm",
+        "TAR-21":"tar21_zm",
+        "SMR":"saritch_zm",
+        "M8A1":"xm8_zm",
+        "M16":"m16_zm",
+        "M14":"m14_zm",
+        "GALIL":"galil_zm",
+        "SLIQUIFIER":"slipgun_zm",
+        "FN FAL":"fnfal_zm"
+    }
+}
