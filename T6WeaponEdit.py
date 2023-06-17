@@ -1,8 +1,15 @@
+from __future__ import annotations
+import os
 import json
+import socket
+import tkinter
 import webbrowser
 import customtkinter
 import db_functions_2 as db
 
+from pathlib import Path
+from tkinter import messagebox
+from typing import Union, Any, Dict, List, Callable
 
 associar = False
 
@@ -11,85 +18,107 @@ with open( db.resource_path("file\\weapon_list.json") ) as file:
     weapon_list_json = json.load( file )
 
 
-def open_discord():
+def open_discord() -> None:
     webbrowser.open_new( "https://discord.gg/ZSXEVB9h8C" )
 
 
-def EnterPress(event):
-    if event.keysym.isdigit() or event.keysym in [ "Tab", "Shift_L", "Shift_R", "BackSpace", "Delete", "Up", "Down", "Left", "Right", "0" ]:
+def EnterPress( event: tkinter.Event ) -> Union[ str, None ] :
+    
+    widget = event.widget  # type: customtkinter.CTkEntry
+
+    if event.keysym.isdigit() or event.keysym in [ "Tab", "Shift_L",  "Shift_R", "BackSpace", "Delete", "Up", "Down", "Left", "Right" ]:
         for x in ["n","u","l"]:
-            if x in event.widget.get() and event.keysym != "BackSpace":
-                event.widget.bell()
+            if x in widget.get() and event.keysym != "BackSpace":
+                widget.bell()
                 return "break"
 
-        if event.widget.get().startswith("0"):
-            event.widget.delete(0, 1)
-            return
+        if widget.select_present() and event.keysym == "0":
+            if widget.index("sel.first") == widget.index(0):
+                widget.bell()
+                return "break"
         
-        if event.widget.index("insert") < 1 and event.keysym == "0":
-            event.widget.bell()
+        if widget.index("insert") < 1 and event.keysym == "0":
+            widget.bell()
             return "break"
 
         if event.keysym == "Up":
-            event.widget.icursor(0)
+            widget.icursor(0)
 
         elif event.keysym == "Down":
-            event.widget.icursor("end")
+            widget.icursor("end")
 
         return
     else:
-        event.widget.bell()
+        widget.bell()
         return "break"
 
 
-def StringVar(string):
-    return customtkinter.StringVar(value=string)
+def StringVar( string: str ) -> Any:
+    return customtkinter.StringVar( value=string )
         
 
-def has_upgraded_support(weapon):
+def has_upgraded_support( weapon: str ) -> bool:
     return weapon in weapon_list_json["support an upgrade"]
 
 
-def can_upgraded_weapon(weapon):
-    return has_upgraded_support(weapon) and weapon in weapon_list_json["support an attachment"]
+def can_upgraded_weapon( weapon: str ) -> bool:
+    return has_upgraded_support( weapon ) and weapon in weapon_list_json["support an attachment"]
 
 
-def common_data(self):
+def common_data( self: Union[ App, ButtonsAcess ] ) -> Dict[ str, Union[ App, ButtonsAcess ] ]:
     return {
         "class": self.WeaponClass.get(),
         "name_string": self.WeaponName.get(),
         "name_id": weapon_list_json["all"][self.WeaponClass.get()][self.WeaponName.get()],
         "alias": self.Weapon["alias"].get().strip(),
-        "cost": self.Weapon["cost"].get().strip().lstrip('0'),
-        "cost_up": self.Weapon["cost_up"].get().strip().lstrip('0'),
-        "cost_re_up": self.Weapon["cost_re_up"].get().strip().lstrip('0'),
-        "limit": self.Weapon["limit"].get().strip().lstrip('0'),
-        "round": self.Weapon["round"].get().strip().lstrip('0'),
-        "kills": self.Weapon["kills"].get().strip().lstrip('0'),
-        "hs": self.Weapon["hs"].get().strip().lstrip('0')
+        "cost": self.Weapon["cost"].get().strip(),
+        "cost_up": self.Weapon["cost_up"].get().strip(),
+        "cost_re_up": self.Weapon["cost_re_up"].get().strip(),
+        "limit": self.Weapon["limit"].get().strip(),
+        "round": self.Weapon["round"].get().strip(),
+        "kills": self.Weapon["kills"].get().strip(),
+        "hs": self.Weapon["hs"].get().strip()
     }
 
 
-def add(self):
-    weapon = common_data(self)
-    db.add_weapon_database(weapon["class"], weapon["name_id"], weapon["name_string"], weapon["alias"], weapon["cost"], weapon["cost_up"],
-                            weapon["cost_re_up"], weapon["limit"], weapon["round"], weapon["kills"], weapon["hs"])
+def add( self: Union[ App, ButtonsAcess ] ) -> None:
+    weapon = common_data( self )
+    db.add_weapon_database( weapon["class"], weapon["name_id"], weapon["name_string"], weapon["alias"], weapon["cost"], weapon["cost_up"],
+                            weapon["cost_re_up"], weapon["limit"], weapon["round"], weapon["kills"], weapon["hs"] )
 
 
-def upgraded(self):
-    weapon = common_data(self)
-    db.update_data_from_database(weapon["name_id"], weapon["alias"], weapon["cost"],weapon["cost_up"], weapon["cost_re_up"],
-                                    weapon["limit"], weapon["round"], weapon["kills"], weapon["hs"])
+def upgraded( self: Union[ App, ButtonsAcess ] ) -> None:
+    weapon = common_data( self )
+    db.update_data_from_database( weapon["name_id"], weapon["alias"], weapon["cost"], weapon["cost_up"], weapon["cost_re_up"],
+                                    weapon["limit"], weapon["round"], weapon["kills"], weapon["hs"] )
 
 
-class App(customtkinter.CTk):
-    def __init__(self):
+class Rcon:
+    def send_command( ip: str, port: int, password: str, command: str, serve_name ) -> str:
+        try:
+            connect = socket.socket (socket.AF_INET, socket.SOCK_DGRAM )
+            message = b"\xFF\xFF\xFF\xFFrcon %s %s" % ( password.encode(), command.encode() )
+            connect.sendto( message, ( ip, port ) )
+
+            data, address = connect.recvfrom( 4096 )
+
+            respond = data[10:].decode()
+
+            messagebox.showerror( title="rcon", message=f"Atualizador com sucesso")
+
+            return respond
+
+        except socket.error as e:
+            messagebox.showerror( title="rcon", message=f"Error ao tenta se conectar ao serve: {serve_name}")
+    
+class App( customtkinter.CTk ):
+    def __init__( self ):
         super().__init__()
-
+        self.toplevel = None
         self.main_window()
 
 
-    def main_window(self):
+    def main_window( self ) -> None:
         self.title("T6WeaponEdit")
         self.iconbitmap(db.resource_path("file\\T6WeapEd.ico"))
         x_screen = self.winfo_screenmmheight()
@@ -101,7 +130,7 @@ class App(customtkinter.CTk):
         self.frames()
 
 
-    def frames(self):
+    def frames( self ) -> None:
         self.frame1 = customtkinter.CTkFrame(self)
         self.frame1.pack(padx=10, pady=10, ipadx=20, side="left", fill="both")
 
@@ -110,36 +139,42 @@ class App(customtkinter.CTk):
 
         self.frame2.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), weight=True)
         self.frame2.grid_columnconfigure(1 , weight=True)
+        # self.bind
         self = Buttons.buttons_F1( self )
 
-
-    def CallBacks( self, valid_button ):
+    def CallBacks( self , valid_button: str ) -> None:
         if valid_button == "ButtonCreateWeapon":
-            self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal" )
+            self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal", "normal" )
 
         elif valid_button == "ButtonEditWeapon":
             if db.has_weapon_in_database("Editar"):
-                self.create_or_edit_weapon( ButtonsAcess.EditWeaponEntry, "ButtonEditWeapon", "disabled", "normal", "normal" )
+                self.create_or_edit_weapon( ButtonsAcess.EditWeaponEntry, "ButtonEditWeapon", "disabled", "normal", "normal", "normal" )
             else:
-                self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal" )
+                self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal", "normal" )
+
         elif valid_button == "ButtonDeletWeapon":
             if db.has_weapon_in_database("deleta"):
-                self.create_or_edit_weapon( ButtonsAcess.DeleteWeaponEntry, "ButtonDeletWeapon", "normal", "normal", "disabled" )
+                self.create_or_edit_weapon( ButtonsAcess.DeleteWeaponEntry, "ButtonDeletWeapon", "normal", "normal", "disabled", "normal" )
             else:
-                self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal" )
+                self.create_or_edit_weapon( ButtonsAcess.CreateWeaponEntry, "ButtonCreateWeapon", "normal", "disabled", "normal", "normal" )
+
+        elif valid_button == "ButtonUpdateWeaponInGame":
+            self.create_or_edit_weapon( ButtonsAcess.UpdateWeaponInGame, "ButtonUpdateWeaponInGame", "normal", "normal", "normal", "disabled" )
 
 
-    def create_or_edit_weapon( self, callback_func, button, ButtonEdit, ButtonCreate, ButtonDelet ):
+    def create_or_edit_weapon( self: Union[ App, Buttons, ButtonsAcess ], callback_func: Callable, button: str, ButtonEdit: str, ButtonCreate: str, ButtonDelet: str, ButtonUpdate: str ) -> None:
         self = callback_func( self )
         self = Buttons.buttons_F2( self, button )
         self.ButtonEditWeapon.configure( state=ButtonEdit )
         self.ButtonCreateWeapon.configure( state=ButtonCreate )
         self.ButtonDeletWeapon.configure( state=ButtonDelet )
+        self.ButttonUpdateWeaponInGame.configure( state=ButtonUpdate )
 
 
-    def create_entry_and_label(self, use_placeholders=True):
-        self.Weapon = {}
+    def create_entry_and_label( self, use_placeholders: bool=True ):
+        self.Weapon = {} # type: Dict[ str, Union[ customtkinter.CTkLabel, customtkinter.CTkEntry ] ]
         global associar
+
         keys = ["cost", "cost_up", "cost_re_up", "limit", "round", "kills", "hs", "alias"]
         texts = ["Cost:", "Cost Up:", "Cost Re-Up:", "Limit Round:", "Round Unlock:", "Kills Unlock:", "Hs Unlock:", "Alias:"]
         placeholders = ["Somente Numeros Inteiros.",
@@ -166,12 +201,12 @@ class App(customtkinter.CTk):
 
 
 class Updates:
-    def ClearFrameData( self ):
+    def ClearFrameData( self: Union[ App, ButtonsAcess ] ) -> None:
         for widget in self.frame2.winfo_children():
             widget.destroy()
 
 
-    def has_text_in_entrys( self, event ):
+    def has_text_in_entrys( self: Union[ App, Buttons, ButtonsAcess ], event: tkinter.Event ) -> bool:
         for child in self.frame2.winfo_children():
             if isinstance( child, customtkinter.CTkEntry ):
                 if len( child.get() ) > 0 and child == self.Weapon["cost_up"]:
@@ -188,14 +223,14 @@ class Updates:
         return False
         
 
-    def update_button_clearEntrys( self, event ):
+    def update_button_clearEntrys( self: Union[ App, Buttons, ButtonsAcess ], event: tkinter.Event ) -> None:
         if Updates.has_text_in_entrys( self, event ):
             self.ButtonClearWeapon.configure( state="normal" )
         else:
             self.ButtonClearWeapon.configure( state="disabled" )  
         
 
-    def ClearEntrys( self ):
+    def ClearEntrys( self: Union[ App, Buttons, ButtonsAcess ] ) -> None:
         self.ButtonClearWeapon.focus()
 
         for widget in self.frame2.winfo_children():
@@ -214,7 +249,7 @@ class Updates:
         self.ButtonClearWeapon.focus()
 
 
-    def update_weapon_names_dropdown( self, WeaponClass ):
+    def update_weapon_names_dropdown( self: ButtonsAcess, WeaponClass: str ) -> None:
         global level_Class
         if WeaponClass != level_Class:
             list_weapons = [ weapons for weapons in weapon_list_json["all"][WeaponClass] ]
@@ -224,12 +259,12 @@ class Updates:
             level_Class = WeaponClass
 
 
-    def update_weapon_cost_fields_from_name( self, Weapon ):
+    def update_weapon_cost_fields_from_name( self: Union[ App, Buttons ], Weapon: str )  -> None:
         global level_weapon
         if Weapon != level_weapon:
             level_weapon = Weapon
             
-            if has_upgraded_support(Weapon):
+            if has_upgraded_support( Weapon ):
                 self.Weapon["cost_up"].configure(state="normal")
 
             else:
@@ -237,7 +272,7 @@ class Updates:
                 self.Weapon["cost_up"].insert(0, "null")
                 self.Weapon["cost_up"].configure(state="disabled")
 
-            if can_upgraded_weapon(Weapon):
+            if can_upgraded_weapon( Weapon ):
                 self.Weapon["cost_re_up"].configure(state="normal")
 
             else:
@@ -249,7 +284,7 @@ class Updates:
             self.ButtonClearWeapon.focus()
 
         
-    def entry_weapon_delete( self, event ):
+    def entry_weapon_delete( self: Union[ Buttons, ButtonsAcess ], event ):
         if not( db.has_weapon_in_database( "", False ) ):
             App.CallBacks( self, "ButtonCreateWeapon" )
 
@@ -265,7 +300,7 @@ class Updates:
 
 
 class UpdatesEdit:
-    def update_weapon_names_dropdown( self, WeaponClass ):
+    def update_weapon_names_dropdown( self: ButtonsAcess, WeaponClass: str ) -> None:
         global level_Class
         if WeaponClass != level_Class:
             WeaponsName = db.get_weapons_by_class_from_database( WeaponClass )
@@ -274,7 +309,7 @@ class UpdatesEdit:
             level_Class = WeaponClass
         
 
-    def update_weapon_names_dropdown_delete( self, WeaponClass ):
+    def update_weapon_names_dropdown_delete( self: ButtonsAcess, WeaponClass ) -> None:
         global level_Class
         if WeaponClass != level_Class:
             WeaponsName = db.get_weapons_by_class_from_database( WeaponClass )
@@ -282,7 +317,7 @@ class UpdatesEdit:
             level_Class = WeaponClass
 
 
-    def update_current_weapon_entry( self, WeaponName ):
+    def update_current_weapon_entry( self: Union[ App, Buttons, ButtonsAcess ], WeaponName ):
         data_weapon = db.get_data_from_database_by_weaponName( WeaponName )
 
         self.Weapon["cost"].configure( textvariable=StringVar( data_weapon["cost"] ) )
@@ -313,24 +348,27 @@ class UpdatesEdit:
 
 
 class Buttons:
-    def buttons_F1( self ):
+    def buttons_F1( self: Union[ App, Buttons, ButtonsAcess ] ) -> Union[ App, Buttons, ButtonsAcess ]:
         self.ButtonCreateWeapon = customtkinter.CTkButton( self.frame1, height=35, text="Create Weapon", command=lambda : self.CallBacks( "ButtonCreateWeapon" ) )
-        self.ButtonCreateWeapon.pack( pady=15, padx=5 )
+        self.ButtonCreateWeapon.pack( pady=10, padx=5 )
 
         self.ButtonEditWeapon = customtkinter.CTkButton( self.frame1, height=35, text="Edit Weapon", command=lambda : self.CallBacks( "ButtonEditWeapon" ) )
         self.ButtonEditWeapon.pack( pady=10, padx=5 )
 
         self.ButtonDeletWeapon = customtkinter.CTkButton( self.frame1, height=35, text="Delete Weapon", command=lambda : self.CallBacks( "ButtonDeletWeapon" ) )
-        self.ButtonDeletWeapon.pack( pady=15, padx=5 )
+        self.ButtonDeletWeapon.pack( pady=10, padx=5 )
 
         self.ButtonExportInJson = customtkinter.CTkButton( self.frame1, height=35, text="Export Json", command=db.export_database_to_json )
         self.ButtonExportInJson.pack( pady=10, padx=5 )
       
         self.ButtonClearWeapon = customtkinter.CTkButton( self.frame1, height=35, text="Clear Text", state="disabled", command=lambda : Updates.ClearEntrys( self ) )
-        self.ButtonClearWeapon.pack( pady=15, padx=5 )
+        self.ButtonClearWeapon.pack( pady=10, padx=5 )
         
         self.ButtonOptionMenu = customtkinter.CTkOptionMenu( self.frame1, height=35, values=["dark","light"], command=customtkinter.set_appearance_mode )
         self.ButtonOptionMenu.pack( pady=10, padx=5, side="bottom" )
+
+        self.ButttonUpdateWeaponInGame = customtkinter.CTkButton( self.frame1, height=35, text="Update In Game", command=lambda : self.CallBacks( "ButtonUpdateWeaponInGame" ) )
+        self.ButttonUpdateWeaponInGame.pack( pady=10, padx=5 )
 
         self.ButtonRestart = customtkinter.CTkButton( self.frame1, height=35, text="Restart", command=lambda : UpdatesEdit.update_current_weapon_entry( self, self.WeaponName.get() )  )
 
@@ -340,7 +378,7 @@ class Buttons:
         return self
 
 
-    def buttons_F2( self, valid_button ):
+    def buttons_F2( self: Union[ App, Buttons, ButtonsAcess ], valid_button: str ) -> Union[ App, Buttons, ButtonsAcess ]:
         if valid_button == "ButtonCreateWeapon":
             self.ButtonAddWeapon = customtkinter.CTkButton( self.frame2, height=35, text="Add Weapon Sqlite", command=lambda : add( self )  )
             self.ButtonAddWeapon.grid( row=10, column=1, columnspan=2, pady=10 )
@@ -365,11 +403,14 @@ class Buttons:
             self.ButtonRestart.pack_forget()
 
             return self
+        
+        elif valid_button == "ButtonUpdateWeaponInGame":
+            return self
 
 
 class ButtonsAcess:
-    def CreateWeaponEntry( self ):
-        self.ButtonClearWeapon.configure(state="disabled")
+    def CreateWeaponEntry( self: Union[ Buttons, ButtonsAcess, App ] ) -> Union[ App, Buttons, ButtonsAcess ]:
+        self.ButtonClearWeapon.configure( state="disabled" )
 
         Updates.ClearFrameData( self )
 
@@ -392,7 +433,7 @@ class ButtonsAcess:
         return self
     
 
-    def EditWeaponEntry( self ):
+    def EditWeaponEntry( self: Union[ App, Buttons, ButtonsAcess ] ) -> Union[ App, Buttons, ButtonsAcess ]:
         self.ButtonClearWeapon.configure(state="normal")
 
         Updates.ClearFrameData( self )
@@ -419,7 +460,7 @@ class ButtonsAcess:
         return self
     
 
-    def DeleteWeaponEntry(self):
+    def DeleteWeaponEntry( self: Union[ App, Buttons, ButtonsAcess ] ) -> Union[ App, Buttons, ButtonsAcess ]:
         self.ButtonClearWeapon.configure(state="disabled")
 
         Updates.ClearFrameData( self )
@@ -440,5 +481,168 @@ class ButtonsAcess:
         level_Class = WeaponsClass[0]
 
         return self
+    
+    def UpdateWeaponInGame( self: Union[ App, Buttons, ButtonsAcess ] ) -> Union[ App, Buttons, ButtonsAcess ]:
+        self.ButtonClearWeapon.configure(state="disabled")
+
+        self.iconify() # minimiza a tela principal.
+
+        if self.toplevel is not None and self.toplevel.winfo_exists(): # verfica ser já existe o toplevel.
+            self.toplevel.deiconify() # tras a janela minimizada para frente.
+
+        else: # se o toplevel não existe criar.
+            self.toplevel = customtkinter.CTkToplevel()
+            self.toplevel.title("Update Weapons inGame")
+
+            x_screen = self.toplevel.winfo_screenmmheight()
+            y_screen = self.toplevel.winfo_screenmmwidth()
+
+            self.toplevel.resizable( False, False )
+            self.toplevel.geometry(f"800x500+{int(x_screen/0.3 - 800/2)}+{int(y_screen/1 - 500/2)}")
+
+            self.toplevel.protocol( "WM_DELETE_WINDOW", lambda: ButtonsAcess.reative( self ) )
+
+            # Criando as frames botões etc...
+
+            self.top_level_frame1 = customtkinter.CTkFrame( self.toplevel )
+            self.top_level_frame1.pack( padx=10, pady=2, side="left", fill="both", expand=False )
+
+            self.top_level_frame2 = customtkinter.CTkScrollableFrame( self.toplevel )
+            self.top_level_frame2.pack( padx=10, pady=2, side="right", fill="both", expand=True )
+
+            self.top_level_frame2.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), weight=True)
+            self.top_level_frame2.grid_columnconfigure(1 , weight=True)
+
+            self.top_level_frame1.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), weight=True)
+            self.top_level_frame1.grid_columnconfigure(1 , weight=True)
+
+            self.top_level_label_name = customtkinter.CTkLabel( self.top_level_frame1, text="Name:" )
+            self.top_level_label_name.grid( row=0, column=0, padx=10, sticky="e" )
+            self.top_level_entry_name = customtkinter.CTkEntry( self.top_level_frame1 )
+            self.top_level_entry_name.grid( row=0, column=1, padx=10 )
+
+            self.top_level_label_password = customtkinter.CTkLabel( self.top_level_frame1, text="Password:" )
+            self.top_level_label_password.grid( row=1, column=0, padx=10, sticky="e" )
+            self.top_level_entry_password = customtkinter.CTkEntry( self.top_level_frame1, show="*" )
+            self.top_level_entry_password.grid( row=1, column=1, padx=10 )
+
+            self.top_level_label_ip = customtkinter.CTkLabel( self.top_level_frame1, text="Ip:" )
+            self.top_level_label_ip.grid( row=2, column=0, padx=10, sticky="e" )
+            self.top_level_entry_ip = customtkinter.CTkEntry( self.top_level_frame1 )
+            self.top_level_entry_ip.grid( row=2, column=1, padx=10 )
+
+            self.top_level_label_port = customtkinter.CTkLabel( self.top_level_frame1, text="Port:" )
+            self.top_level_label_port.grid( row=3, column=0, padx=10, sticky="e" )
+            self.top_level_entry_port = customtkinter.CTkEntry( self.top_level_frame1 )
+            self.top_level_entry_port.grid( row=3, column=1, padx=10 )
+
+            self.top_level_button_create = customtkinter.CTkButton( self.top_level_frame1, height=35, text="Add Serve", command=lambda: ButtonsAcess.add_serve( self ) )
+            self.top_level_button_create.grid( row=4, column=0, columnspan=2, padx=10 ) 
+
+            self.top_level_button_up_all = customtkinter.CTkButton( self.top_level_frame1, height=35, text="Update All", command=lambda: ButtonsAcess.update_all_serves( self ) )
+            self.top_level_button_up_all.grid( row=5, column=0, columnspan=2, pady=5,  padx=10, sticky="s", rowspan=5 )
+
+            self = ButtonsAcess.load_widgets_to_serves( self )
+
+        return self
+    
+    def update_all_serves( self ) -> None:
+        serves = db.get_servers()
+        
+        if serves.__len__() < 1:
+            print( "nem um serve encontrado!" )
+            return
+
+        for serve in serves:
+            ButtonsAcess.send_command( serves[serve] )
+
+
+    def ClearFrameData( self: Union[ App, ButtonsAcess ] ) -> None:
+        for widget in self.top_level_frame2.winfo_children():
+            widget.destroy()
+
+
+    def load_widgets_to_serves( self ) -> ButtonsAcess:
+        serves = db.get_servers()
+        
+        self.top_level_serve = {} # type: Dict[ str, Union[ customtkinter.CTkLabel, customtkinter.CTkButton ] ]
+
+        for num , serve in enumerate( serves ):
+            texto = serve
+            if serve.__len__() > 20:
+                texto = texto[:10] + "..."
+
+            self.top_level_serve[serve + "_lb"] = customtkinter.CTkLabel( self.top_level_frame2, text=texto )
+            self.top_level_serve[serve + "_lb"].grid( row=num, column=0, padx=10, pady=5, sticky="s" )
+
+            self.top_level_serve[serve + "_btn"] = customtkinter.CTkButton( self.top_level_frame2, text="Update Serve", command=lambda _serve_=serve: ButtonsAcess.send_command( serves[_serve_] ) )
+            self.top_level_serve[serve + "_btn"].grid( row=num, column=1, padx=5, pady=5 )
+
+            self.top_level_serve[serve + "del_btn"] = customtkinter.CTkButton( self.top_level_frame2, text="Delet Serve", command=lambda _self_=self, _serve_=serve: ButtonsAcess.delet( _self_, _serve_ ) )
+            self.top_level_serve[serve + "del_btn"].grid( row=num, column=2, padx=5, pady=5 )
+
+        return self
+    
+
+    def delet( self, serve_name: str ) -> None:
+        self.top_level_serve[serve_name + "_lb"].destroy()
+        self.top_level_serve[serve_name + "_btn"].destroy()
+        self.top_level_serve[serve_name + "del_btn"].destroy()
+        
+        db.delete_serve( serve_name )
+
+
+    def send_command( serve: Dict[ str, str ] ) -> None:
+        Rcon.send_command( serve["ip"], int( serve["port"] ), serve["password"], "wp_list up", serve["name"] )
+
+
+    def add_serve( self ) -> None:
+        if not ButtonsAcess.is_error_in_entry( self ):
+            ButtonsAcess.create_serve( self, self.top_level_entry_name.get(), self.top_level_entry_password.get(), self.top_level_entry_ip.get(), self.top_level_entry_port.get() )
+
+
+    def is_error_in_entry( self ) -> bool:
+        if self.top_level_entry_name.get().strip() == "":
+            messagebox.showinfo( title="Name", message="Preenchar o campo Name.")
+            return True
+        
+        if self.top_level_entry_password.get().strip() == "":
+            messagebox.showinfo( title="Password", message="Preenchar o campo Password.")
+            return True
+        
+        if self.top_level_entry_ip.get().strip() == "":
+            messagebox.showinfo( title="Ip", message="Preenchar o campo Ip.")
+            return True
+        
+        if self.top_level_entry_port.get().strip() == "":
+            messagebox.showinfo( title="Port", message="Preenchar o campo Port.")
+            return True
+
+        if not self.top_level_entry_port.get().strip().isdigit():
+            messagebox.showinfo( title="Port", message="Preenchar o campo com numero int.")
+            return True
+
+        serves = db.get_servers() # dict com os servidores.
+
+        if self.top_level_entry_name.get().strip() in serves:
+            messagebox.showinfo( title="Name", message="Esse name de serve já existe tente outro nome por favor")
+            return True
+                
+        return False
+
+
+    def create_serve( self, name: str, password: str, ip: str, port: str ) -> None:
+        __file__name__ = Path( db.resource_path( "file\\serve.json") )
+        db.add_server( name, password, ip, port )
+
+        ButtonsAcess.ClearFrameData( self )
+        ButtonsAcess.load_widgets_to_serves( self )
+
+
+    def reative( self: Union[ App, Buttons, ButtonsAcess ] ):
+        self.ButttonUpdateWeaponInGame.configure( state="normal" )
+        self.toplevel.destroy()
+        self.toplevel = None
+
 
 App().mainloop()

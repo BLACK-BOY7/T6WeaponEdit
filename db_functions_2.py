@@ -2,10 +2,13 @@ import os
 import sys
 import json
 import sqlite3
+
+from pathlib import Path
 from tkinter import messagebox
+from typing import List, Any, Dict, Union
 
 
-def create_path(path):
+def create_path( path: str ) -> str:
     """
     Verifica se o caminho existe e o cria se não existir, e retorna o caminho absoluto.
     """
@@ -19,33 +22,61 @@ def create_path(path):
     return path
 
 
-def resource_path( relative_path ):
+def resource_path( relative_path: str ) -> str:
     if hasattr( sys, '_MEIPASS' ):
         return os.path.join( sys._MEIPASS, relative_path )
-    return os.path.join( os.path.abspath("."), relative_path )
+    return os.path.join( Path( __file__ ).parent.resolve(), relative_path )
 
 
-def validate_input_fields(cost, costUp, costReUp, alias):
+def validate_input_fields( cost: str, costUp: str, costReUp: str, alias: str, roundUnlock: str, limit: str, killsUnlock: str, hsUnlock: str ) -> bool:
+    if limit == None or limit == "":
+        limit = "null"
+    
+    if roundUnlock == None or roundUnlock == "":
+        roundUnlock = "null"
+        
+    if killsUnlock == None or killsUnlock == "":
+        killsUnlock = "null"
+
+    if hsUnlock == None or hsUnlock == "":
+        hsUnlock = "null"
+
     if not cost:
-        messagebox.showerror("Cost", "Você precisa prencher o campo Cost.")
+        messagebox.showerror("Cost", "Você precisa prencher o campo Cost!")
         return True
 
     if not costUp:
-        messagebox.showerror("Cost Up", "Você precisa prencher o campo Cost Up")
+        messagebox.showerror("Cost Up", "Você precisa prencher o campo Cost Up!")
         return True
 
     if not costReUp:
-        messagebox.showerror("Cost Re-Up", "Você precisa prencher o campo Cost Re-Up")
+        messagebox.showerror("Cost Re-Up", "Você precisa prencher o campo Cost Re-Up!")
         return True
     
     if not alias:
-        messagebox.showerror("Alias", "Você precisa adicionar um nome para compra em Alias!")
+        messagebox.showerror("Alias", "Você precisa prencher o campo Alias!")
+        return True
+    
+    if not roundUnlock:
+        messagebox.showerror("Round Unlock", "Você precisa prencher o campo Round Unlock!")
+        return True
+
+    if not limit:
+        messagebox.showerror("Limit Round", "Você precisa prencher o campo Limit Round!")
+        return True
+
+    if not killsUnlock:
+        messagebox.showerror("Kills Unlock", "Você precisa prencher o campo Kills Unlock!")
+        return True
+
+    if not hsUnlock:
+        messagebox.showerror("Hs Unlock", "Você precisa prencher o campo Hs Unlock!")
         return True
     
     return False
 
 
-def alias_( alias ):
+def alias_( alias: str ) -> str:
     alias_array = alias.strip().strip(",").split(",")
     size = len( alias_array )
     alias = ""
@@ -60,15 +91,15 @@ def alias_( alias ):
     return alias
 
 
-def cost_(cost):
+def cost_( cost: str ) -> Union[ str, int ]:
     if cost != "null":
         return int(cost)
     else:
         return cost
 
 
-def add_weapon_database(className, nameid, nameString, alias, cost, costUp, costReUp, limitRound, roundUnlock, killsUnlock, hsUnlock):
-    if validate_input_fields(cost, costUp, costReUp, alias): # Adicionar base de dados de armas
+def add_weapon_database( className: str, nameid: str, nameString: str, alias, cost: str, costUp: str, costReUp: str, limitRound: str, roundUnlock: str, killsUnlock: str, hsUnlock: str ) -> None:
+    if validate_input_fields(cost, costUp, costReUp, alias, roundUnlock, limitRound, killsUnlock, hsUnlock): # Adicionar base de dados de armas
         # caso de error dou um return para o bank de dados nem ser aberto.
         return
     
@@ -116,7 +147,7 @@ def add_weapon_database(className, nameid, nameString, alias, cost, costUp, cost
     messagebox.showinfo("Weapon", "Weapon Adicionada ao banco de dados com sucesso.")
 
 
-def get_weapons_by_class_from_database(class_name): # obter armas por classe na base de dados
+def get_weapons_by_class_from_database( class_name: str ) -> List[str]: # obter armas por classe na base de dados
     connect = sqlite3.connect(create_path("file") + "/weapons.db") # Faço a conexão com o banco de dados, É caso ele não exista é criador um banco de dados. 
 
     cursor = connect.cursor() # Usor um Cursor para assim pode manipula os dados do banco ou para adicionar mais coisas ao mesmo.
@@ -130,7 +161,7 @@ def get_weapons_by_class_from_database(class_name): # obter armas por classe na 
     return weapon_names #retun uma lista de armas.
 
 
-def get_available_class_from_database(): # obter classe disponível na base de dados
+def get_available_class_from_database() -> List[str]: # obter classe disponível na base de dados
     connect = sqlite3.connect(create_path("file") + "/weapons.db")
     cursor = connect.cursor()
 
@@ -144,7 +175,7 @@ def get_available_class_from_database(): # obter classe disponível na base de d
     return [row[0] for row in result]
 
 
-def get_data_from_database_by_weaponName(weapon_name): # obter dados da base de dados por nome de arma. que seria a linha completa do nome dessa arma.
+def get_data_from_database_by_weaponName( weapon_name: str ) -> Dict[ str, str ] : # obter dados da base de dados por nome de arma. que seria a linha completa do nome dessa arma.
     connect = sqlite3.connect(create_path("file") + "/weapons.db") # Faço a conexão com o banco de dados, É caso ele não exista é criador um banco de dados. 
 
     cursor = connect.cursor() # Usor um Cursor para assim pode manipula os dados do banco ou para adicionar mais coisas ao mesmo.
@@ -160,8 +191,8 @@ def get_data_from_database_by_weaponName(weapon_name): # obter dados da base de 
     return result_dict # retorna um array com chaves.
 
 
-def update_data_from_database(nameId, alias, cost, costUp, costReUp, limitRound, roundUnlock, killsUnlock, hsUnlock):
-    if validate_input_fields(cost, costUp, costReUp, alias): # Adicionar base de dados de armas
+def update_data_from_database( nameId: str, alias, cost: str, costUp: str, costReUp: str, limitRound: str, roundUnlock: str, killsUnlock: str, hsUnlock: str ) -> None:
+    if validate_input_fields(cost, costUp, costReUp, alias, roundUnlock, limitRound, killsUnlock, hsUnlock): # Adicionar base de dados de armas
         # caso de error dou um return para o bank de dados nem ser aberto.
         return
     
@@ -195,7 +226,7 @@ def update_data_from_database(nameId, alias, cost, costUp, costReUp, limitRound,
     messagebox.showinfo("Update Weapon", "Weapon Atualizada com sucesso!")
 
 
-def has_weapon_in_database(text, messagem=True): # Tem arma na base de dados
+def has_weapon_in_database( text: str, messagem: bool=True ) -> bool: # Tem arma na base de dados
     if not os.path.exists(create_path("file") + "/weapons.db"):
         messagebox.showerror("file", "Você ainda não criou nem uma arma! Você Sera redirecionador para \"Create Weapon\"")
         return False
@@ -222,7 +253,7 @@ def has_weapon_in_database(text, messagem=True): # Tem arma na base de dados
         return False
 
 
-def export_database_to_json(): # Base de dados de exportação para a json
+def export_database_to_json() -> None: # Base de dados de exportação para a json
     if not has_weapon_in_database("Exporta!"):
         return
     
@@ -240,11 +271,12 @@ def export_database_to_json(): # Base de dados de exportação para a json
     try:
         rows_list = {}
         for row in weapons:
-            row_dict = {}
+            row_dict = {} 
 
             for i in range( len(columns) ):
                 if columns[i] == "alias":
-                    row_dict[columns[i]] = row[i].split(",")
+                    alias = row[i] # type: str
+                    row_dict[columns[i]] = alias.split(",")
                     continue
 
                 if columns[i] in ["costUp","costReUp","limitRound","roundUnlock","killsUnlock","hsUnlock"]:
@@ -264,7 +296,8 @@ def export_database_to_json(): # Base de dados de exportação para a json
     except:
         messagebox.showerror("Error","error do além!")
 
-def delete_weapon_by_database( weapon_name ):
+
+def delete_weapon_by_database( weapon_name: str ) -> None:
     if not(has_weapon_in_database("Deleta")):
         return
 
@@ -279,6 +312,90 @@ def delete_weapon_by_database( weapon_name ):
     connect.close()
 
     messagebox.showinfo("Weapon Delete", f"Arma {weapon_name} deletada com sucesso!")
+
+
+def add_server( name: str, password: str, ip: str, port: str ) -> None:
+    __file__name__ = Path( resource_path( "file\\Servers.db" ) )
+
+    connect = sqlite3.connect( __file__name__ )
+
+    cursor = connect.cursor()
+
+    cursor.execute( """CREATE TABLE IF NOT EXISTS servers( name text PRIMARY KEY, password, ip, port )""" )
+
+    try:
+        cursor.execute( """INSERT INTO servers( name, password, ip, port ) VALUES( ?, ?, ?, ? )""",( name, password, ip, port ) )
+
+    except sqlite3.IntegrityError():
+        messagebox.showerror( "Server", "Este nome de servidor já existe" )
+        cursor.close()
+        connect.close()
+        return
+
+    cursor.close()
+
+    connect.commit()
+    connect.close()
+
+    messagebox.showinfo( "Server", "Servidor adicionado com sucesso!" )
+
+
+def create_table_to_servers() -> None:
+    __file__name__ = Path( resource_path( "file\\Servers.db" ) )
+
+    connect = sqlite3.connect( __file__name__ )
+
+    cursor = connect.cursor()
+
+    cursor.execute( """CREATE TABLE IF NOT EXISTS servers( name text PRIMARY KEY, password, ip, port )""" )
+
+    cursor.close()
+    connect.commit()
+
+
+def get_servers() -> Dict[ str, str ]:
+    __file__name__ = Path( resource_path( "file\\Servers.db" ) )
+
+    create_table_to_servers() # chama essa função para criar a tanto o arquivo quanto a tabela servers
+
+    connect = sqlite3.connect( __file__name__ )
+
+    cursor = connect.cursor()
+
+    results = cursor.execute( "SELECT * FROM Servers" ).fetchall()
+
+    result_dict = {} # type: Dict[ str, str ]
+
+    for result in results:
+        key = result[0]
+        valores = {
+            "name": key,
+            "password": result[1],
+            "ip": result[2],
+            "port": result[3]
+        }
+
+        result_dict[key] = valores
+
+    cursor.close()
+    connect.close()
+
+    return result_dict
+
+
+def delete_serve( name: str ) -> None:
+    __file__name__ = Path( resource_path( "file\\Servers.db" ) )
+
+    connect = sqlite3.connect( __file__name__ )
+
+    cursor = connect.cursor()
+
+    cursor.execute( "DELETE FROM servers WHERE name=?", ( name, )  )
+    cursor.close()
+
+    connect.commit()
+    connect.close()
+
 
 # if __name__ == "main":
 #     export_database_to_json()
